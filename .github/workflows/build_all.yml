@@ -1,5 +1,5 @@
 name: Build Module
-on: push
+on: workflow-dispatch
 
 env:
     # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
