@@ -27,7 +27,7 @@ jobs:
         - name: Unpack SDR++ source and core lib
           run: 'mkdir sdrpp_lib && mv SDRPlusPlus sdrpp_lib && dpkg-deb -xv sdrpp_debian_sid_amd64.deb ./sdrpp_lib && cp ./.github/workflows/sdrpp_module_hack.cmake ./ && pwd && ls -lah && ls -lah sdrpp_lib'
         - name: Install dependencies
-          run: 'sudo apt-get update && sudo apt-get install libtalloc-dev libfftw3-dev libglfw3-dev libvolk2-dev libzstd-dev'
+          run: 'sudo apt-get update && sudo apt-get install libtalloc-dev libfftw3-dev libglfw3-dev libvolk-dev libzstd-dev'
         - name: Download ETSI codec
           run: 'cd src/decoder/etsi_codec-patches && ./download_and_patch.sh'
         - name: Cmake
@@ -67,21 +67,22 @@ jobs:
         - name: Unpack SDR++ source and core lib
           run: mkdir sdrpp_lib ; 7z x master.zip -osdrpp_lib ; 7z x sdrpp_windows_x64.zip -osdrpp_lib ; cp .github/workflows/sdrpp_module_hack.cmake ./
         - name: Prepare MinGW
-          run: C:/msys64/msys2_shell.cmd -defterm -here -no-start -mingw64 -c "pacman --noconfirm -S --needed base-devel mingw-w64-x86_64-tools"
+          run: C:/msys64/msys2_shell.cmd -defterm -here -no-start -mingw64 -c "pacman --noconfirm -S --needed base-devel mingw-w64-x86_64-binutils mingw-w64-x86_64-tools"
         - name: Generate .def file
           working-directory: sdrpp_lib/sdrpp_windows_x64
           run: C:/msys64/msys2_shell.cmd -defterm -here -no-start -mingw64 -c "gendef sdrpp_core.dll"
         - name: Generate .lib file
           working-directory: sdrpp_lib/sdrpp_windows_x64
-          run: |
-            $path = "C:/Program Files/Microsoft Visual Studio"
-            $contents = Get-ChildItem -Path $path -Force -Recurse -Directory | Select-Object -First 1
-            $path = $path + "/" + $contents.Name + "/Enterprise/VC/Tools/MSVC"
-            $path
-            $contents = Get-ChildItem -Path $path -Force -Recurse -Directory | Select-Object -First 1
-            $path = $path + "/" + $contents.Name + "/bin/HostX64/x64/Lib.exe"
-            $path
-            & $path /DEF:sdrpp_core.def
+          # run: |
+          #   $path = "C:/Program Files/Microsoft Visual Studio"
+          #   $contents = Get-ChildItem -Path $path -Force -Recurse -Directory | Select-Object -First 1
+          #   $path = $path + "/" + $contents.Name + "/Enterprise/VC/Tools/MSVC"
+          #   $path
+          #   $contents = Get-ChildItem -Path $path -Force -Recurse -Directory | Select-Object -First 1
+          #   $path = $path + "/" + $contents.Name + "/bin/HostX64/x64/Lib.exe"
+          #   $path
+          #   & $path /DEF:sdrpp_core.def
+          run: C:/msys64/msys2_shell.cmd -defterm -here -no-start -mingw64 -c "dlltool -d sdrpp_core.def -l sdrpp_core.lib"
         - name: Export GitHub Actions cache environment variables
           uses: actions/github-script@v7
           with:
